@@ -1,0 +1,14 @@
+services:
+  workspace:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "ros-humble-competition"
+    network_mode: "host"
+    environment:
+      - DISPLAY=:1
+    volumes:
+      - .:/home/ubuntu/workbench
+      - ./tmux.conf:/home/ubuntu/.tmux.conf
+    ipc: host
+

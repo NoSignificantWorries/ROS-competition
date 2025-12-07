@@ -35,3 +35,8 @@
 robot_description/urdf/lidar.urdf.xacro
 robot_description/urdf/depth.urdf.xacro
 .vscode/
+
+build/
+install/
+log/
+
