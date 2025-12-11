@@ -10,5 +10,6 @@ services:
     volumes:
       - .:/home/ubuntu/workbench
       - ./tmux.conf:/home/ubuntu/.tmux.conf
+      - /tmp/.X11-unix:/tmp/.X11-unix
     ipc: host
 
