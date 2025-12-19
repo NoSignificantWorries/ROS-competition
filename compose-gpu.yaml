@@ -3,7 +3,7 @@ services:
     runtime: nvidia
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-gpu
     container_name: "ros-humble-competition"
     network_mode: "host"
     environment:

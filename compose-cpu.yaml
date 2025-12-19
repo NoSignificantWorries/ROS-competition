@@ -1,0 +1,16 @@
+services:
+  workspace:
+    runtime: nvidia
+    build:
+      context: .
+      dockerfile: Dockerfile-cpu
+    container_name: "ros-humble-competition"
+    network_mode: "host"
+    environment:
+      - DISPLAY=:1
+    volumes:
+      - .:/home/ubuntu/workbench
+      - ./tmux.conf:/home/ubuntu/.tmux.conf
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    ipc: host
+
