@@ -1,0 +1,4 @@
+[submodule "competition"]
+	path = competition
+	url = https://github.com/virusapex/my_robot.git
+	branch = competition

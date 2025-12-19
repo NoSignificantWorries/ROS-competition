@@ -40,3 +40,7 @@ build/
 install/
 log/
 
+.venv/
+
+competition/
+
