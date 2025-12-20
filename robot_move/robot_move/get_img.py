@@ -4,7 +4,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
-from std_msgs.msg import String
+from std_msgs.msg import String, Float32
 from cv_bridge import CvBridge
 
 
@@ -15,6 +15,7 @@ class Worker(Node):
 
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
         self.finish_publisher_ = self.create_publisher(String, "/robot_finish", 10)
+        self.aruco_publisher_ = self.create_publisher(Float32, "/mission_aruco", 10)
 
         self.color_sub = self.create_subscription(Image, '/color/image', self.color_callback, 10)
         self.depth_sub = self.create_subscription(Image, '/depth/image', self.depth_callback, 10)
@@ -42,7 +43,13 @@ class Worker(Node):
             self.time_start += 0.1
         elif self.move and self.time_start >= self.time_stop:
             self.move = False
-            self.finish()
+            # self.finish()
+
+        aruco = self.check_aruco()
+        if aruco is not None:
+            ac_msg = Float32()
+            ac_msg.data = aruco
+            self.aruco_publisher_.publish(ac_msg)
 
         self.publisher_.publish(msg)
 
@@ -51,6 +58,28 @@ class Worker(Node):
         msg.data = "test"
 
         self.finish_publisher_.publish(msg)
+
+    def check_aruco(self):
+        if self.img is None:
+            return None
+
+        gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+
+        aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
+        parameters = cv2.aruco.DetectorParameters_create()
+
+        corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
+
+        if ids is not None:
+            cv2.aruco.drawDetectedMarkers(self.img, corners, ids)
+
+            print(f"Найдено маркеров: {len(ids)}")
+            print(f"ID маркеров: {ids.flatten()}")
+            print("Res:", np.sqrt(ids.flatten()[0]))
+
+            return np.sqrt(ids.flatten()[0])
+        return None
+
 
     def get_green(self):
         if self.img_hsv is not None:        
@@ -81,10 +110,14 @@ class Worker(Node):
 
         if ids is not None:
             cv2.aruco.drawDetectedMarkers(self.img, corners, ids)
+
+            msg = Float32()
+            msg.data = np.sqrt(ids.flatten()[0])
+            self.aruco_publisher_.publish(msg)
                 
             print(f"Найдено маркеров: {len(ids)}")
             print(f"ID маркеров: {ids.flatten()}")
-            print("Res:", np.sqrt(ids))
+            print("Res:", np.sqrt(ids.flatten()[0]))
 
         cv2.imshow('Color Image', self.img)
         cv2.waitKey(1)
