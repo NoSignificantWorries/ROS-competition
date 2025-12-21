@@ -85,6 +85,8 @@ def main():
 
         blurred = cv2.GaussianBlur(resized_sign.astype(np.float32), kernel_size, sigma)
 
+        print(list(blurred))
+
         # cv2.imwrite("mask.png", blurred)
 
         rect = pchs.Rectangle((bbox[0], bbox[1]), bbox[2], bbox[3], linewidth=2, edgecolor='r', facecolor='none')
