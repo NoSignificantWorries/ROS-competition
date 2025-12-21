@@ -1,4 +1,5 @@
 from ament_index_python.packages import get_package_share_directory
+import time
 import os
 import cv2
 import numpy as np
@@ -11,12 +12,17 @@ from cv_bridge import CvBridge
 
 class Worker(Node):
     def __init__(self):
-        super().__init__('worker_node')
+        super().__init__("worker_node")
 
-        pkg_path = get_package_share_directory('robot_move')
-        mask_path = os.path.join(pkg_path, 'resources', 'masks', 'mask.png')
+        pkg_path = get_package_share_directory("robot_move")
+        mask_path = os.path.join(pkg_path, "resources", "masks", "mask.png")
+        self.get_logger().info(f"Mask path: {mask_path}")
         mask_ref = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        if mask_ref is None:
+            self.get_logger().error("Mask not found in the path")
+            return
         _, self.soft_mask_ref = cv2.threshold(mask_ref, 127, 255, cv2.THRESH_BINARY)
+        self.get_logger().info("Mask succesfully readed")
 
         self.bridge = CvBridge()
 
@@ -24,31 +30,35 @@ class Worker(Node):
         self.team_arrow_publisher = self.create_publisher(String, "/team/arrow", 10)
         self.team_start_publisher = self.create_publisher(String, "/team/start", 10)
 
-        self.commands_sub = self.create_subscription(Image, '/team/commands', self.commands_callback, 10)
-        self.color_sub = self.create_subscription(Image, '/color/image', self.color_callback, 10)
-        self.depth_sub = self.create_subscription(Image, '/depth/image', self.depth_callback, 10)
+        self.commands_sub = self.create_subscription(Image, "/team/commands", self.commands_callback, 10)
+        self.color_sub = self.create_subscription(Image, "/color/image", self.color_callback, 10)
+        self.depth_sub = self.create_subscription(Image, "/depth/image", self.depth_callback, 10)
         self.depth_map = None
         self.img = None
         self.img_hsv = None
 
         self.timer = self.create_timer(0.1, self.loop)
-        self.detect_aruco = False
-        self.detect_start = False
-        self.detect_arrow = False
+        self.detect_aruco = True
+        self.detect_start = True
+        self.detect_arrow = True
 
     def loop(self):
         if self.detect_start:
             green_mask = self.get_green()
-            if green_mask is not None and np.count_nonzero(green_mask) > 1000:
-                start_msg = String()
-                start_msg.data = "start"
-                self.team_start_publisher.publish(start_msg)
+            if green_mask is not None:
+                self.get_logger().info(f"Detected group of green pixels with size {np.count_nonzero(green_mask)}")
+                if np.count_nonzero(green_mask) > 1000:
+                    self.get_logger().info("Sending start message")
+                    start_msg = String()
+                    start_msg.data = "start"
+                    self.team_start_publisher.publish(start_msg)
 
         if self.detect_aruco:
             aruco = self.check_aruco()
             if aruco is not None:
                 aruco_msg = Float32()
                 aruco_msg.data = aruco
+                self.get_logger().info("Sending aruco message")
                 self.team_aruco_publisher.publish(aruco_msg)
 
         if self.detect_arrow:
@@ -56,6 +66,7 @@ class Worker(Node):
             if sign is not None:
                 sign_msg = String()
                 sign_msg.data = sign[0]
+                self.get_logger().info("Sending arrow message")
                 self.team_arrow_publisher.publish(sign_msg)
 
     def check_aruco(self):
@@ -72,6 +83,7 @@ class Worker(Node):
         if ids is not None:
             cv2.aruco.drawDetectedMarkers(self.img, corners, ids)
             res = np.sqrt(ids.flatten()[0])
+            self.get_logger().info(f"Detected ArUco marker with id: {ids} -> value: {res:.3f}")
             return res
 
         return None
@@ -102,8 +114,11 @@ class Worker(Node):
         union = np.logical_or(self.soft_mask_ref > 0, resized_sign > 0).sum()
         
         iou = intersection / (union + 1e-10)
+
+        res = "left" if iou > 0.85 else "right", iou
+        self.get_logger().info(f"Detected arrow sign: {res} with IoU for left arrow {iou:.3f}")
         
-        return "left" if iou > 0.85 else "right", iou
+        return res
 
     def get_green(self):
         if self.img_hsv is not None:        
@@ -113,16 +128,16 @@ class Worker(Node):
         return None
 
     def color_callback(self, msg):
-        self.img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        self.img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         self.img_hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV).astype(np.float32)
         self.img_hsv[..., 0] = self.img_hsv[..., 0] / 179 * np.pi * 2
         self.img_hsv[..., 1:] /= 255
 
-        cv2.imshow('Color Image', self.img)
+        cv2.imshow("Color Image", self.img)
         cv2.waitKey(1)
 
     def depth_callback(self, msg):
-        cv_depth = self.bridge.imgmsg_to_cv2(msg, desired_encoding='32FC1')
+        cv_depth = self.bridge.imgmsg_to_cv2(msg, desired_encoding="32FC1")
         
         depth_data = np.zeros(cv_depth.shape, dtype=np.float32)
 
@@ -136,6 +151,15 @@ class Worker(Node):
 
     def commands_callback(self, msg):
         com = msg.data
+        self.get_logger().info(f"Received command \"{com}\"")
+
+    def stop(self):
+        self.detect_aruco = False
+        self.detect_arrow = False
+        self.detect_start = False
+        time.sleep(0.5)
+        self.timer.cancel()
+        self.timer.destroy()
 
 
 def main(args=None):
@@ -144,12 +168,16 @@ def main(args=None):
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
+        node.get_logger().info("Node stopped by user")
+        node.stop()
+    except Exception as e:
+        node.get_logger().error(f"Node error: {str(e)}")
+    finally:
         node.destroy_node()
+        time.sleep(1)
         rclpy.shutdown()
-    node.destroy_node()
-    rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 

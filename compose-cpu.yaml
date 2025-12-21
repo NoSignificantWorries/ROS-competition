@@ -1,6 +1,5 @@
 services:
   workspace:
-    runtime: nvidia
     build:
       context: .
       dockerfile: Dockerfile-cpu
