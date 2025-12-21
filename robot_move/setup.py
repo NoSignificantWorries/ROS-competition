@@ -10,6 +10,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ("share/" + package_name + "/resources/masks", ["resources/masks/mask.png"])
     ],
     install_requires=['setuptools'],
     zip_safe=True,

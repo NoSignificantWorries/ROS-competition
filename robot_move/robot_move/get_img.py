@@ -1,3 +1,5 @@
+from ament_index_python.packages import get_package_share_directory
+import os
 import cv2
 import numpy as np
 import rclpy
@@ -11,6 +13,13 @@ from cv_bridge import CvBridge
 class Worker(Node):
     def __init__(self):
         super().__init__('worker_node')
+        pkg_path = get_package_share_directory('robot_move')
+        mask_path = os.path.join(pkg_path, 'resources', 'masks', 'mask.png')
+        print(mask_path)
+        mask_ref = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        print(mask_ref)
+        _, self.soft_mask_ref = cv2.threshold(mask_ref, 127, 255, cv2.THRESH_BINARY)
+
         self.bridge = CvBridge()
 
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
@@ -22,6 +31,8 @@ class Worker(Node):
         self.depth_map = None
         self.img = None
         self.img_hsv = None
+
+        self.aruco_detected = False
 
         self.timer = self.create_timer(0.1, self.loop)
         self.move = False
@@ -45,11 +56,16 @@ class Worker(Node):
             self.move = False
             # self.finish()
 
-        aruco = self.check_aruco()
-        if aruco is not None:
-            ac_msg = Float32()
-            ac_msg.data = aruco
-            self.aruco_publisher_.publish(ac_msg)
+        if not self.aruco_detected:
+            aruco = self.check_aruco()
+            if aruco is not None:
+                ac_msg = Float32()
+                ac_msg.data = aruco
+                self.aruco_publisher_.publish(ac_msg)
+                self.aruco_detected = True
+
+        sign = self.get_sign()
+        print(sign)
 
         self.publisher_.publish(msg)
 
@@ -79,7 +95,35 @@ class Worker(Node):
 
             return np.sqrt(ids.flatten()[0])
         return None
+    
+    def get_sign(self):
+        if self.img_hsv is None:
+            return None
 
+        blue_mask = (self.img_hsv[..., 1] > 0.9) & (self.img_hsv[..., 0] >= np.deg2rad(200)) & (self.img_hsv[..., 0] <= np.deg2rad(260))
+
+        if not np.any(blue_mask):
+            return None
+
+        y_coords, x_coords = np.where(blue_mask)
+        bbox = (x_coords.min(), y_coords.min(), 
+                x_coords.max() - x_coords.min(), 
+                y_coords.max() - y_coords.min())
+
+        if bbox[2] < 100 and bbox[3] < 100:
+            return None
+
+        sign = blue_mask[bbox[1]:bbox[1] + bbox[3] + 1,
+                           bbox[0]:bbox[0] + bbox[2] + 1].astype(np.uint8)
+
+        resized_sign = cv2.resize(sign, (100, 100), interpolation=cv2.INTER_NEAREST)
+
+        intersection = np.logical_and(self.soft_mask_ref > 0, resized_sign > 0).sum()
+        union = np.logical_or(self.soft_mask_ref > 0, resized_sign > 0).sum()
+        
+        iou = intersection / (union + 1e-10)
+        
+        return "left" if iou > 0.85 else "right", iou
 
     def get_green(self):
         if self.img_hsv is not None:        
@@ -100,24 +144,6 @@ class Worker(Node):
         self.img_hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV).astype(np.float32)
         self.img_hsv[..., 0] = self.img_hsv[..., 0] / 179 * np.pi * 2
         self.img_hsv[..., 1:] /= 255
-
-        gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
-
-        aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
-        parameters = cv2.aruco.DetectorParameters_create()
-
-        corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
-
-        if ids is not None:
-            cv2.aruco.drawDetectedMarkers(self.img, corners, ids)
-
-            msg = Float32()
-            msg.data = np.sqrt(ids.flatten()[0])
-            self.aruco_publisher_.publish(msg)
-                
-            print(f"Найдено маркеров: {len(ids)}")
-            print(f"ID маркеров: {ids.flatten()}")
-            print("Res:", np.sqrt(ids.flatten()[0]))
 
         cv2.imshow('Color Image', self.img)
         cv2.waitKey(1)
