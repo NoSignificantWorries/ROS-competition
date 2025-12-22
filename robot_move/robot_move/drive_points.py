@@ -5,7 +5,6 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String, Float32
-from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from ament_index_python.packages import get_package_share_directory
 
@@ -37,7 +36,6 @@ class WaypointFollower(Node):
         self.aruco_pub = self.create_publisher(Float32, '/mission_aruco', 10)
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.sub_odom = self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
-        self.scan_sub = self.create_subscription(LaserScan, '/scan', self.scan_callback, 10)
 
         self.team_aruco_sub = self.create_subscription(Float32, "/team/aruco", self.aruco_callback, 10)
         self.team_arrow_sub = self.create_subscription(String, "/team/arrow", self.arrow_callback, 10)
