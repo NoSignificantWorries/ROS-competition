@@ -10,7 +10,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ("share/" + package_name + "/resources/masks", ["resources/masks/mask.png"])
+        ("share/" + package_name + "/resources", ["resources/mask.png", "resources/path.json"])
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -25,7 +25,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            "move_robot = robot_move.get_img:main"
+            "move_robot = robot_move.get_img:main",
+            "move_robot_by_points = robot_move.drive_points:main",
         ],
     },
 )

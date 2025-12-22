@@ -15,7 +15,7 @@ class Worker(Node):
         super().__init__("worker_node")
 
         pkg_path = get_package_share_directory("robot_move")
-        mask_path = os.path.join(pkg_path, "resources", "masks", "mask.png")
+        mask_path = os.path.join(pkg_path, "resources", "mask.png")
         self.get_logger().info(f"Mask path: {mask_path}")
         mask_ref = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
         if mask_ref is None:
