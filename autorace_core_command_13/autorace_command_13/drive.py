@@ -22,7 +22,7 @@ class WaypointFollower(Node):
     def __init__(self):
         super().__init__('waypoint_follower')
 
-        pkg_path = get_package_share_directory("robot_move")
+        pkg_path = get_package_share_directory("autorace_core_command_13")
         path_file = os.path.join(pkg_path, "resources", "path.json")
 
         with open(path_file, "r") as file:

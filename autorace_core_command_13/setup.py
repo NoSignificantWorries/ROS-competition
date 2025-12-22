@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'robot_move'
+package_name = 'autorace_core_command_13'
 
 setup(
     name=package_name,
@@ -25,8 +25,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            "move_robot = robot_move.get_img:main",
-            "move_robot_by_points = robot_move.drive_points:main",
+            "sensors = autorace_core_command_13.sensors:main",
+            "drive = autorace_core_command_13.drive:main",
         ],
     },
 )
