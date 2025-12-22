@@ -1,13 +1,14 @@
-from ament_index_python.packages import get_package_share_directory
 import time
 import os
 import cv2
 import numpy as np
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, PointCloud2, LaserScan
+import sensor_msgs_py.point_cloud2 as pc2
 from std_msgs.msg import String, Float32
 from cv_bridge import CvBridge
+from ament_index_python.packages import get_package_share_directory
 
 
 class Worker(Node):
@@ -29,18 +30,22 @@ class Worker(Node):
         self.team_aruco_publisher = self.create_publisher(Float32, "/team/aruco", 10)
         self.team_arrow_publisher = self.create_publisher(String, "/team/arrow", 10)
         self.team_start_publisher = self.create_publisher(String, "/team/start", 10)
+        self.team_depth_publisher = self.create_publisher(String, "/team/depth", 10)
 
-        self.commands_sub = self.create_subscription(Image, "/team/commands", self.commands_callback, 10)
+        self.commands_sub = self.create_subscription(String, "/team/commands", self.commands_callback, 10)
         self.color_sub = self.create_subscription(Image, "/color/image", self.color_callback, 10)
-        self.depth_sub = self.create_subscription(Image, "/depth/image", self.depth_callback, 10)
-        self.depth_map = None
+        self.depth_subscriber = self.create_subscription(PointCloud2, '/depth/points', self.depth_callback, 10)
+        self.scan_sub = self.create_subscription(LaserScan, '/scan', self.scan_callback, 10)
+        self.depth = None
+        self.safe_distance = 0.4
         self.img = None
         self.img_hsv = None
 
         self.timer = self.create_timer(0.1, self.loop)
-        self.detect_aruco = True
+        self.detect_aruco = False
         self.detect_start = True
-        self.detect_arrow = True
+        self.detect_arrow = False
+        self.detect_depth = False
 
     def loop(self):
         if self.detect_start:
@@ -68,6 +73,12 @@ class Worker(Node):
                 sign_msg.data = sign[0]
                 self.get_logger().info("Sending arrow message")
                 self.team_arrow_publisher.publish(sign_msg)
+
+        if self.detect_depth:
+            if self.depth is not None:
+                depth_msg = String()
+                depth_msg.data = self.depth
+                self.team_depth_publisher.publish(depth_msg)
 
     def check_aruco(self):
         if self.img is None:
@@ -129,34 +140,76 @@ class Worker(Node):
 
     def color_callback(self, msg):
         self.img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-        self.img_hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV).astype(np.float32)
-        self.img_hsv[..., 0] = self.img_hsv[..., 0] / 179 * np.pi * 2
-        self.img_hsv[..., 1:] /= 255
+        if self.get_green or self.get_sign:
+            self.img_hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV).astype(np.float32)
+            self.img_hsv[..., 0] = self.img_hsv[..., 0] / 179 * np.pi * 2
+            self.img_hsv[..., 1:] /= 255
+        else:
+            self.img_hsv = None
 
         cv2.imshow("Color Image", self.img)
         cv2.waitKey(1)
 
     def depth_callback(self, msg):
-        cv_depth = self.bridge.imgmsg_to_cv2(msg, desired_encoding="32FC1")
-        
-        depth_data = np.zeros(cv_depth.shape, dtype=np.float32)
+        if not self.detect_depth:
+            return
 
-        mask = ~np.isinf(cv_depth)
-        if np.any(mask):
-            depth_data[mask] = cv_depth[mask]
-            self.depth_map = depth_data
-            # np.save("depth.npy", self.depth_map)
+        scan = msg
+
+        start_idx = round(scan.height * 0.4) * scan.width + round(scan.width * 0.1)
+        finish_idx = round(scan.height * 0.6) * scan.width + round(scan.width * 0.66)
+        # index = (scan.width * scan.height) // 2 + (scan.width // 2)
+        points = list(pc2.read_points(scan, field_names=("x", "y", "z"), skip_nans=True))
+        points = list(map(list, points))
+
+        if len(points) <= finish_idx - start_idx:
+            return
+
+        center_points = np.array(points[start_idx:finish_idx])
+        # print(center_points)
+        dist = np.min(center_points[:, 0])
+
+        if dist > (self.safe_distance):
+            self.depth = "front"
+        elif dist > 0 and dist < (self.safe_distance):
+            self.depth = "stop"
         else:
-            self.depth_map = None
+            self.depth = "stop"
 
     def commands_callback(self, msg):
         com = msg.data
         self.get_logger().info(f"Received command \"{com}\"")
+        for icom in com.split("|"):
+            if icom == "startoff":
+                self.detect_start = False
+                self.get_logger().info("Start green light detection turned off")
+            elif icom == "arrowon":
+                self.detect_arrow = True
+                self.get_logger().info("Arrow detection turned on")
+            elif icom == "arrowoff":
+                self.detect_arrow = False
+                self.get_logger().info("Arrow detection turned off")
+            elif icom == "depthon":
+                self.detect_depth = True
+                self.get_logger().info("Depth detection turned on")
+            elif icom == "depthoff":
+                self.detect_depth = False
+                self.get_logger().info("Depth detection turned off")
+            elif icom == "arucoon":
+                self.detect_aruco = True
+                self.get_logger().info("ArUco detection turned on")
+            elif icom == "arucooff":
+                self.detect_aruco = False
+                self.get_logger().info("ArUco detection turned off")
+
+    def scan_callback(self, msg):
+        ...
 
     def stop(self):
         self.detect_aruco = False
         self.detect_arrow = False
         self.detect_start = False
+        self.detect_depth = False
         time.sleep(0.5)
         self.timer.cancel()
         self.timer.destroy()
