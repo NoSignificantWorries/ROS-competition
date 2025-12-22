@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image, PointCloud2, LaserScan
+from sensor_msgs.msg import Image, PointCloud2
 import sensor_msgs_py.point_cloud2 as pc2
 from std_msgs.msg import String, Float32
 from cv_bridge import CvBridge
@@ -35,7 +35,6 @@ class Worker(Node):
         self.commands_sub = self.create_subscription(String, "/team/commands", self.commands_callback, 10)
         self.color_sub = self.create_subscription(Image, "/color/image", self.color_callback, 10)
         self.depth_subscriber = self.create_subscription(PointCloud2, '/depth/points', self.depth_callback, 10)
-        self.scan_sub = self.create_subscription(LaserScan, '/scan', self.scan_callback, 10)
         self.depth = None
         self.safe_distance = 0.4
         self.img = None
@@ -201,9 +200,6 @@ class Worker(Node):
             elif icom == "arucooff":
                 self.detect_aruco = False
                 self.get_logger().info("ArUco detection turned off")
-
-    def scan_callback(self, msg):
-        ...
 
     def stop(self):
         self.detect_aruco = False
