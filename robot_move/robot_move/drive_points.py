@@ -1,7 +1,6 @@
 import os
 import json
 import math
-import numpy as np
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
@@ -59,25 +58,6 @@ class WaypointFollower(Node):
         self.aruco_activated = False
         self.depth_on = False
 
-        self.middle = None
-        self.dist_tol = 0.11
-        self.pipe_i = 0
-        self.pv = 0.2
-        self.s = 0.05 * self.pv
-        self.R = 2.41
-        self.cp = np.pi * self.R / (2 * self.s)
-        self.pw = self.pv / self.R
-
-        self.dist_tol = 0.11  # желаемое расстояние до стены
-        self.pv = 0.2  # линейная скорость
-        self.max_angular = 0.3  # максимальная угловая скорость
-        self.Kp_wall = 3.0  # коэффициент П-регулятора для стены
-        self.Kp_center = 2.0  # коэффициент для центрирования
-        
-        # Для сглаживания данных лидара
-        self.wall_dist_history = []
-        self.history_size = 5
-
         self.have_pose = False
         self.x = 0.0
         self.y = 0.0
@@ -91,32 +71,6 @@ class WaypointFollower(Node):
         q = msg.pose.pose.orientation
         self.yaw = 2 * math.atan2(q.z, q.w)
         self.have_pose = True
-
-    def scan_callback(self, msg):
-        self.scan_data = msg  # сохраняем полные данные
-        ranges = np.array(msg.ranges)
-        
-        ranges[ranges < msg.range_min] = float('inf')
-        ranges[ranges > msg.range_max] = float('inf')
-        
-        n = len(ranges)
-        front_sector = 30  # градусов
-        
-        sector_half = front_sector // 2
-        front_index = n // 2  # 0 градусов
-        
-        best_distance = 0
-        best_angle = 0
-        
-        for i in range(-sector_half, sector_half + 1):
-            idx = (front_index + i) % n
-            dist = ranges[idx]
-            if dist > best_distance:
-                best_distance = dist
-                best_angle = i * (msg.angle_increment * 180 / np.pi)  # в градусах
-            
-        self.best_direction = np.radians(best_angle)
-        self.best_distance = best_distance
 
     def aruco_callback(self, msg):
         self.aruco = msg.data
@@ -134,39 +88,6 @@ class WaypointFollower(Node):
         msg = String()
         msg.data = cmd
         self.commands_publisher.publish(msg)
-
-    def pipe_following_improved(self):
-        twist = Twist()
-        twist.linear.x = self.pv
-        
-        if not hasattr(self, 'best_direction') or self.best_distance > 10:
-            twist.angular.z = self.pv / 2.41
-            return twist
-    
-        angular_correction = 2.0 * self.best_direction
-        
-        if hasattr(self, 'scan_data'):
-            ranges = np.array(self.scan_data.ranges)
-            n = len(ranges)
-            
-            left_idx = n // 4
-            right_idx = 3 * n // 4
-            
-            left_dist = np.median(ranges[left_idx-5:left_idx+5])
-            right_dist = np.median(ranges[right_idx-5:right_idx+5])
-            
-            if left_dist < 3.0 and right_dist < 3.0:
-                center_error = left_dist - right_dist
-                angular_correction += 0.5 * center_error
-            elif left_dist < 2.0:
-                angular_correction += 0.3 * (2.0 - left_dist)
-            elif right_dist < 2.0:
-                angular_correction -= 0.3 * (2.0 - right_dist)
-                    
-            angular_correction = max(min(angular_correction, self.max_angular), -self.max_angular)
-            twist.angular.z = angular_correction
-    
-            return twist
 
     def control_step(self):
         if self.state == "start":
@@ -199,26 +120,6 @@ class WaypointFollower(Node):
                 msg.data = self.aruco
                 self.aruco_pub.publish(msg)
                 self.state = "drive"
-        elif self.state == "pipe":
-            twist = self.pipe_following_improved()
-            self.cmd_pub.publish(twist)
-            
-            if self.pipe_i > 100 and hasattr(self, 'best_distance') and self.best_distance > 1.5:
-                front_clear = True
-                if hasattr(self, 'scan_data'):
-                    front_indices = range(len(self.scan_data.ranges)//2 - 15, len(self.scan_data.ranges)//2 + 15)
-                    for idx in front_indices:
-                        if (0 <= idx < len(self.scan_data.ranges) and self.scan_data.ranges[idx] < 0.8):
-                            front_clear = False
-                            break
-                            
-                if front_clear:
-                    self.state = ""
-                    twist = Twist()
-                    self.cmd_pub.publish(twist)
-                    return
-            
-            self.pipe_i += 1
         elif self.state == "depthon":
             self.depth_on = True
             self.send_cmd("depthon")

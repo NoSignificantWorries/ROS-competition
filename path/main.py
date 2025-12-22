@@ -89,7 +89,6 @@ def main():
         "l6": "depthon",
         "l7": "depthoff",
         "l15.0": "aruco",
-        # "l18": "pipe"
     }
     points_conf = {
         "start": (141, 30),
