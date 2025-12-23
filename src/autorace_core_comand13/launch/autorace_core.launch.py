@@ -3,13 +3,21 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():    
-    move_robot = Node(
+    sensors_node = Node(
         package='autorace_core_comand13',
-        executable='move_robot',      # узел Worker с /team/*
-        name='worker_node',
+        executable='sensors',
+        name='sensors_node',
+        output='screen'
+    )
+
+    drive_node = Node(
+        package='autorace_core_comand13',
+        executable='drive',
+        name='drive_node',
         output='screen'
     )
 
     return LaunchDescription([
-        move_robot
+        sensors_node,
+        drive_node
     ])

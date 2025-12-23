@@ -13,8 +13,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         # ресурсы с маской стрелки
-        (os.path.join('share', package_name, 'resources', 'masks'),
-         ['resources/masks/mask.png']),
+        (os.path.join('share', package_name, 'resources'), ['resources/mask.png']),
+        (os.path.join('share', package_name, 'resources'), ['resources/path.json']),
         # launch-файлы
         (os.path.join('share', package_name, 'launch'),
          glob('launch/*.launch.py')),
@@ -32,8 +32,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            "move_robot = autorace_core_comand13.get_img:main",
-            "move = autorace_core_comand13.move:main",
+            "sensors = autorace_core_comand13.sensors:main",
+            "drive = autorace_core_comand13.drive:main",
         ],
     },
 )
