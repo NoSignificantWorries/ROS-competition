@@ -26,7 +26,7 @@
 
 ### Установка и запуск
 
-/src
+`/src`
 ```
 colcon build --packages-select autorace_core_comand13
 source install/setup.bash
@@ -48,7 +48,7 @@ autorace_core_command13/
 
 ### Конфигурация
 
-`path.json   - маршрут робота:
+`path.json`   - маршрут робота:
 
 
 ### ROS Топики
