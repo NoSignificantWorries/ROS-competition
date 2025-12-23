@@ -91,7 +91,7 @@ class Worker(Node):
         corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
 
         if ids is not None:
-            cv2.aruco.drawDetectedMarkers(self.img, corners, ids)
+            # cv2.aruco.drawDetectedMarkers(self.img, corners, ids)
             res = np.sqrt(ids.flatten()[0])
             self.get_logger().info(f"Detected ArUco marker with id: {ids} -> value: {res:.3f}")
             return res
