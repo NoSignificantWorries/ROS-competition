@@ -1,0 +1,44 @@
+running egg_info
+creating ../build/autorace_core_comand13/autorace_core_comand13.egg-info
+writing ../build/autorace_core_comand13/autorace_core_comand13.egg-info/PKG-INFO
+writing dependency_links to ../build/autorace_core_comand13/autorace_core_comand13.egg-info/dependency_links.txt
+writing entry points to ../build/autorace_core_comand13/autorace_core_comand13.egg-info/entry_points.txt
+writing requirements to ../build/autorace_core_comand13/autorace_core_comand13.egg-info/requires.txt
+writing top-level names to ../build/autorace_core_comand13/autorace_core_comand13.egg-info/top_level.txt
+writing manifest file '../build/autorace_core_comand13/autorace_core_comand13.egg-info/SOURCES.txt'
+reading manifest file '../build/autorace_core_comand13/autorace_core_comand13.egg-info/SOURCES.txt'
+writing manifest file '../build/autorace_core_comand13/autorace_core_comand13.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ubuntu/workbench/src/build/autorace_core_comand13/build
+creating /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib
+creating /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13
+copying autorace_core_comand13/__init__.py -> /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13
+copying autorace_core_comand13/drive.py -> /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13
+copying autorace_core_comand13/sensors.py -> /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13
+running install
+running install_lib
+creating /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13
+copying /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13/__init__.py -> /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13
+copying /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13/drive.py -> /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13
+copying /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13/sensors.py -> /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13
+byte-compiling /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13/__init__.py to __init__.cpython-312.pyc
+byte-compiling /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13/drive.py to drive.cpython-312.pyc
+byte-compiling /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13/sensors.py to sensors.cpython-312.pyc
+running install_data
+creating /home/ubuntu/workbench/src/install/autorace_core_comand13/share/ament_index
+creating /home/ubuntu/workbench/src/install/autorace_core_comand13/share/ament_index/resource_index
+creating /home/ubuntu/workbench/src/install/autorace_core_comand13/share/ament_index/resource_index/packages
+copying resource/autorace_core_comand13 -> /home/ubuntu/workbench/src/install/autorace_core_comand13/share/ament_index/resource_index/packages
+copying package.xml -> /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13
+creating /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13/resources
+copying resources/mask.png -> /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13/resources
+copying resources/path.json -> /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13/resources
+creating /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13/launch
+copying launch/autorace_core.launch.py -> /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13/launch
+running install_egg_info
+Copying ../build/autorace_core_comand13/autorace_core_comand13.egg-info to /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13-0.0.0-py3.12.egg-info
+running install_scripts
+Installing drive script to /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/autorace_core_comand13
+Installing sensors script to /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/autorace_core_comand13
+writing list of installed files to '/home/ubuntu/workbench/src/build/autorace_core_comand13/install.log'

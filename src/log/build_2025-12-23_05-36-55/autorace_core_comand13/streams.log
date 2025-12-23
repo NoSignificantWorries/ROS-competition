@@ -1,0 +1,46 @@
+[0.572s] Invoking command in '/home/ubuntu/workbench/src/autorace_core_comand13': PYTHONPATH=/home/ubuntu/workbench/src/build/autorace_core_comand13/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/autorace_core_comand13 build --build-base /home/ubuntu/workbench/src/build/autorace_core_comand13/build install --record /home/ubuntu/workbench/src/build/autorace_core_comand13/install.log --single-version-externally-managed install_data
+[0.765s] running egg_info
+[0.765s] creating ../build/autorace_core_comand13/autorace_core_comand13.egg-info
+[0.777s] writing ../build/autorace_core_comand13/autorace_core_comand13.egg-info/PKG-INFO
+[0.777s] writing dependency_links to ../build/autorace_core_comand13/autorace_core_comand13.egg-info/dependency_links.txt
+[0.777s] writing entry points to ../build/autorace_core_comand13/autorace_core_comand13.egg-info/entry_points.txt
+[0.777s] writing requirements to ../build/autorace_core_comand13/autorace_core_comand13.egg-info/requires.txt
+[0.777s] writing top-level names to ../build/autorace_core_comand13/autorace_core_comand13.egg-info/top_level.txt
+[0.777s] writing manifest file '../build/autorace_core_comand13/autorace_core_comand13.egg-info/SOURCES.txt'
+[0.803s] reading manifest file '../build/autorace_core_comand13/autorace_core_comand13.egg-info/SOURCES.txt'
+[0.804s] writing manifest file '../build/autorace_core_comand13/autorace_core_comand13.egg-info/SOURCES.txt'
+[0.804s] running build
+[0.804s] running build_py
+[0.804s] creating /home/ubuntu/workbench/src/build/autorace_core_comand13/build
+[0.804s] creating /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib
+[0.804s] creating /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13
+[0.804s] copying autorace_core_comand13/__init__.py -> /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13
+[0.805s] copying autorace_core_comand13/drive.py -> /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13
+[0.805s] copying autorace_core_comand13/sensors.py -> /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13
+[0.805s] running install
+[0.809s] running install_lib
+[0.823s] creating /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13
+[0.823s] copying /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13/__init__.py -> /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13
+[0.823s] copying /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13/drive.py -> /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13
+[0.823s] copying /home/ubuntu/workbench/src/build/autorace_core_comand13/build/lib/autorace_core_comand13/sensors.py -> /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13
+[0.823s] byte-compiling /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13/__init__.py to __init__.cpython-312.pyc
+[0.824s] byte-compiling /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13/drive.py to drive.cpython-312.pyc
+[0.825s] byte-compiling /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13/sensors.py to sensors.cpython-312.pyc
+[0.827s] running install_data
+[0.827s] creating /home/ubuntu/workbench/src/install/autorace_core_comand13/share/ament_index
+[0.827s] creating /home/ubuntu/workbench/src/install/autorace_core_comand13/share/ament_index/resource_index
+[0.827s] creating /home/ubuntu/workbench/src/install/autorace_core_comand13/share/ament_index/resource_index/packages
+[0.827s] copying resource/autorace_core_comand13 -> /home/ubuntu/workbench/src/install/autorace_core_comand13/share/ament_index/resource_index/packages
+[0.827s] copying package.xml -> /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13
+[0.827s] creating /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13/resources
+[0.827s] copying resources/mask.png -> /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13/resources
+[0.828s] copying resources/path.json -> /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13/resources
+[0.828s] creating /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13/launch
+[0.828s] copying launch/autorace_core.launch.py -> /home/ubuntu/workbench/src/install/autorace_core_comand13/share/autorace_core_comand13/launch
+[0.828s] running install_egg_info
+[0.844s] Copying ../build/autorace_core_comand13/autorace_core_comand13.egg-info to /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages/autorace_core_comand13-0.0.0-py3.12.egg-info
+[0.844s] running install_scripts
+[0.941s] Installing drive script to /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/autorace_core_comand13
+[0.941s] Installing sensors script to /home/ubuntu/workbench/src/install/autorace_core_comand13/lib/autorace_core_comand13
+[0.942s] writing list of installed files to '/home/ubuntu/workbench/src/build/autorace_core_comand13/install.log'
+[0.963s] Invoked command in '/home/ubuntu/workbench/src/autorace_core_comand13' returned '0': PYTHONPATH=/home/ubuntu/workbench/src/build/autorace_core_comand13/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ubuntu/workbench/src/install/autorace_core_comand13/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/autorace_core_comand13 build --build-base /home/ubuntu/workbench/src/build/autorace_core_comand13/build install --record /home/ubuntu/workbench/src/build/autorace_core_comand13/install.log --single-version-externally-managed install_data

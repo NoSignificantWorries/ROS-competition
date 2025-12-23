@@ -1,0 +1,3 @@
+[console_scripts]
+drive = autorace_core_comand13.drive:main
+sensors = autorace_core_comand13.sensors:main
